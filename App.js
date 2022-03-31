@@ -1,62 +1,145 @@
-import { StyleSheet, View, Animated} from 'react-native';
-import { useRef, useEffect } from 'react';
+import { View, Animated, StyleSheet, Text, ScrollView } from 'react-native';
+import { useRef, useEffect, useState } from 'react';
 
 export default function App() {
 
-  const translation = useRef(new Animated.Value(0)).current;
+  const animationValue = useRef (new Animated.Value(0)).current;
+  const backgroundInterpolate = animationValue.interpolate({
+    inputRange: [0, 3000],
+    outputRange: ["black", "white"]
+  })
+
+  const backgroundStyle = {
+    backgroundColor: backgroundInterpolate
+    }
+
+  const translation = useRef (new Animated.ValueXY({ x: 0, y: 0})).current;
+
+  const translation2 = useRef (new Animated.ValueXY({ x: 0, y: 0})).current;
+
+  const translation3 = useRef (new Animated.ValueXY({ x: 0, y: 0})).current;
   
-  useEffect(() => {
-    Animated.timing(translation, {
-      toValue: 100,
-      duration: 5000, 
-      useNativeDriver: false,
-    }).start();
-  }, []);
-  
+  useEffect (() => {
+    Animated.sequence ([
+      Animated.spring(translation.x, {
+        toValue: 300,
+        useNativeDriver: true,
+      }), 
+      Animated.spring(translation2.x, {
+          toValue: -300,
+          useNativeDriver: true,
+    }),
+    Animated.spring(translation3.x, {
+      toValue: 300,
+      useNativeDriver: true,
+})
+  ]).start();
+  });
+
   return (
-
-
+    
     <View style={styles.container}>
-      <Animated.View
-        style={{
-          width:100,
-          height:100,
-          backgroundColor: "yellow",
-          transform: [
-            {translateX: translation},
-            //rotation
-            {rotate: translation.interpolate({
-              inputRange: [0, 100],
-              outputRange: ['0deg', '360deg']
-            })}
-          ],
-        //opacity within a range
-          opacity: translation.interpolate({
-            inputRange: [25, 50, 100],
-            outputRange: [0, 1, 0],
-            extrapolateLeft: 'clamp',
-            extrapolateRight: 'clamp',
-          }),
+      <ScrollView 
+        scrollEventThrottle={16}
+        onScroll={Animated.event([{
+           nativeEvent : { contentOffset: { y : animationValue } }
+          }],{useNativeDriver: false} 
+        )}
+      >
+        <Animated.View style={[styles.scrollViewStyle, backgroundStyle]}>
+       <Animated.View style={{
+         backgroundColor: "red",
+         height: 300,
+         width: 300,
+         margin: 10,
+         justifyContent: "center",
+         alignItems: "center",
+         transform: [
+          { translateX: translation.x}
+        ],
+        }}>
+        <Text style={styles.eyobText}
+        >EYOB</Text>
+      </Animated.View>
 
-          backgroundColor: translation.interpolate({
-            inputRange: [0, 100],
-            outputRange: ['yellow', 'blue'],
-          })
-        }}
-        />
-        </View>
-  )
-      }
-  
+      <Animated.View style={{
+         backgroundColor: "yellow",
+         height: 300,
+         width: 300,
+         margin: 10,
+         justifyContent: "center",
+         alignItems: "center",
+         transform: [
+          { translateX: translation2.x}
+        ],
+        }}>
+        <Text style={styles.graceText}>GRACE</Text>
+      </Animated.View>
 
+      <Animated.View style={{
+         backgroundColor: "blue",
+         height: 300,
+         width: 300,
+         margin: 10,
+         justifyContent: "center",
+         alignItems: "center",
+         transform: [
+          { translateX: translation3.x}
+        ],
+        }}>
+        <Text style={styles.eyobText}
+        >SAM</Text>
+      </Animated.View> 
+      </Animated.View> 
+      </ScrollView>
+  </View>
+
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "black",
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
  },
+  eyob: {
+    backgroundColor: "red",
+    height: 300,
+    width: 300,
+    margin: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  eyobText: {
+    fontWeight: "bold",
+  },
+  grace: {
+    backgroundColor: "yellow",
+    height: 300,
+    width: 300,
+    margin: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  graceText:{
+    fontWeight: "bold",
+  },
+  sam: {
+    backgroundColor: "blue",
+    height: 300,
+    width: 300,
+    margin: 10,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  samText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  scrollViewStyle:
+  {
+    flex: 1,
+    height: 5000,
+  }
 });
-
-  
